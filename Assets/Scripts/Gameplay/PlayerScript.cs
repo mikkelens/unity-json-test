@@ -1,4 +1,5 @@
-﻿using Data;
+﻿using System.Linq;
+using Data;
 using Tools.Helpers;
 using Tools.Types;
 using UnityEngine;
@@ -10,6 +11,7 @@ namespace Gameplay
 		[SerializeField] private float moveSpeed = 4f;
 		[SerializeField] private float moveAcceleration = 4f;
 
+		[SerializeField] private LayerMask hitTargets = LayerMask.GetMask("Default");
 		[SerializeField] private float hitRadius = 1f;
 		[SerializeField] private float hitDistanceOffset = 2f;
 
@@ -41,7 +43,10 @@ namespace Gameplay
 
 		private EnemyScript FindEnemy()
 		{
-			return null;
+			Vector2 castPos = transform.position.AsV2FromV3() + transform.up.AsV2FromV3() * hitDistanceOffset;
+			Collider2D[] colliders = Physics2D.OverlapCircleAll(castPos, hitRadius, hitTargets.value);
+			EnemyScript enemy = colliders.Select(x => x.GetComponent<EnemyScript>()).First(x => x != null);
+			return enemy;
 		}
 	}
 }
