@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Data;
 using Tools.Helpers;
 using Tools.Types;
@@ -11,7 +12,7 @@ namespace Gameplay
 		[SerializeField] private float moveSpeed = 4f;
 		[SerializeField] private float moveAcceleration = 4f;
 
-		[SerializeField] private LayerMask hitTargets = LayerMask.GetMask("Default");
+		[SerializeField] private LayerMask hitTargets;
 		[SerializeField] private float hitRadius = 1f;
 		[SerializeField] private float hitDistanceOffset = 2f;
 
@@ -45,8 +46,16 @@ namespace Gameplay
 		{
 			Vector2 castPos = transform.position.AsV2FromV3() + transform.up.AsV2FromV3() * hitDistanceOffset;
 			Collider2D[] colliders = Physics2D.OverlapCircleAll(castPos, hitRadius, hitTargets.value);
+			if (colliders.Length == 0) return null;
 			EnemyScript enemy = colliders.Select(x => x.GetComponent<EnemyScript>()).First(x => x != null);
 			return enemy;
+		}
+
+		private void OnDrawGizmos()
+		{
+			Vector2 hitPos = transform.position.AsV2FromV3() + transform.up.AsV2FromV3() * hitDistanceOffset;
+			Gizmos.color = Color.red;
+			Gizmos.DrawWireSphere(hitPos.AsV3FromV2(), hitRadius);
 		}
 	}
 }

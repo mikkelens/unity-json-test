@@ -135,7 +135,8 @@ GameObject:
   - component: {fileID: 210916067}
   - component: {fileID: 210916064}
   - component: {fileID: 210916066}
-  m_Layer: 0
+  - component: {fileID: 210916068}
+  m_Layer: 7
   m_Name: Enemy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -237,7 +238,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: de329cc0362f4a1193d6f8dfda53fcd9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startingHP: 3
+  startingHP: 50
+--- !u!95 &210916068
+Animator:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 210916063}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: b0a8521d1014fa0498aed3b139c75a9d, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -460,7 +481,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 619394800}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 3.75, z: 0}
+  m_LocalPosition: {x: 0, y: 6.09, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -480,7 +501,7 @@ GameObject:
   - component: {fileID: 1083273672}
   - component: {fileID: 1083273670}
   - component: {fileID: 1083273674}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Player
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -567,12 +588,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 4
-  moveAcceleration: 4
+  moveAcceleration: 50
   hitTargets:
     serializedVersion: 2
-    m_Bits: 0
-  hitRadius: 0
-  hitDistanceOffset: 0
+    m_Bits: 128
+  hitRadius: 0.75
+  hitDistanceOffset: 2
 --- !u!114 &1083273673
 MonoBehaviour:
   m_ObjectHideFlags: 0
