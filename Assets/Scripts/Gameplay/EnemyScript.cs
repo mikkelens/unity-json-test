@@ -2,7 +2,7 @@
 
 namespace Gameplay
 {
-	[RequireComponent(typeof(Animator))]
+	[RequireComponent(typeof(Collider2D), typeof(Animator))]
 	public class EnemyScript : MonoBehaviour
 	{
 		[SerializeField] private int startingHP = 3;
@@ -19,9 +19,9 @@ namespace Gameplay
 			_anim = GetComponent<Animator>();
 		}
 
-		public bool Hit() // returns true if killed enemy
+		public bool Hit(int damage) // returns true if killed enemy
 		{
-			_hp--;
+			_hp -= damage;
 
 			if (_hp > 0)
 			{
