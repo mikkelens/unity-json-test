@@ -30,6 +30,7 @@ namespace Gameplay
 			}
 
 			_anim.SetTrigger(DieTriggerString);
+			Destroy(gameObject);
 			return true;
 		}
 	}

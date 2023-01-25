@@ -1,49 +1,76 @@
-using System.Collections.Generic;
-using Data;
+using System;
+using System.Collections;
 using Gameplay;
-using NUnit.Framework;
 using UnityEngine;
 
 namespace Systems
 {
 	public static class SaveSystem
 	{
-		public static void AutoSave() // always on
+		private static bool _willSaveAtEndOfFrame;
+		public static void AutoSaveAtEnd()
 		{
-			bool autosaved = SaveRelevantData();
-			if (!autosaved)
+			if (_willSaveAtEndOfFrame) return;
+			if (Manager.Exists)
 			{
-				Debug.LogError("Could not autosave!");
+				_willSaveAtEndOfFrame = true;
+				Manager.Instance.StartCoroutine(AutoSaveEnumerator());
+			}
+			else
+			{
+				Debug.LogWarning("Could not autosave after delay because no manager gameobject existed to start a coroutine.");
+			}
+		}
+
+		private static IEnumerator AutoSaveEnumerator()
+		{
+			yield return new WaitForEndOfFrame();
+			AutoSaveImmediately();
+			_willSaveAtEndOfFrame = false;
+		}
+		public static void AutoSaveImmediately() // always on
+		{
+			if (PlayerScript.Exists)
+			{
+				PlayerScript player = PlayerScript.Instance;
+				SavePlayerData(player.Scores.ReadValue);
+				SavePlayerData(player.Upgrades.ReadValue);
 			}
 		}
 
 		private static string SavePath => $"{Application.dataPath}/Saves";
-		private static string GetPath<T>() => $"{SavePath}/{nameof(T)}.json";
-
-		private static bool SaveRelevantData() // returns false if it could not save everything
+		private static string GetPath(Type dataType)
 		{
-			if (!PlayerScript.Exists) return false;
-			List<UpgradeStats> upgrades = PlayerScript.Instance.Upgrades;
-			System.IO.File.WriteAllText(GetPath<List<UpgradeStats>>(), JsonUtility.ToJson(upgrades));
-			// PlayerStats playerStats = PlayerScript.Instance.Stats;
-			// string playerDataString = JsonUtility.ToJson(playerStats);
-			//
-			// System.IO.File.WriteAllText(PlayerDataPath, playerDataString);
-			return true;
+			if (!System.IO.File.Exists(SavePath))
+			{
+				System.IO.Directory.CreateDirectory(SavePath); // create saves folder
+			}
+			return $"{SavePath}/{dataType}.json";
 		}
 
-		// public static PlayerStats LoadPlayerStats()
-		// {
-		// 	string playerDataString = System.IO.File.ReadAllText(PlayerDataPath);
-		// 	PlayerStats playerStats = JsonUtility.FromJson<PlayerStats>(playerDataString);
-		// 	if (playerStats == null) return new PlayerStats();
-		// 	return playerStats;
-		// }
-
-		public static List<UpgradeStats> LoadPlayerUpgrades()
+		private static void SavePlayerData(object data)
 		{
-			string loadedString = System.IO.File.ReadAllText(GetPath<List<UpgradeStats>>());
-			return JsonUtility.FromJson<List<UpgradeStats>>(loadedString);
+			Debug.Log($"Saved data of type {data.GetType()}.");
+			System.IO.File.WriteAllText(GetPath(data.GetType()), JsonUtility.ToJson(data));
+		}
+
+		public static T LoadTypeData<T>() where T : new()
+		{
+			string path = GetPath(typeof(T));
+			if (!System.IO.File.Exists(path))
+			{
+				Debug.LogWarning($"Found no data of type {typeof(T).Name}! Created new.");
+				return new T();
+			}
+			string loadedString = System.IO.File.ReadAllText(path);
+			T loadedData = JsonUtility.FromJson<T>(loadedString);
+			if (loadedData == null)
+			{
+				Debug.LogWarning("Data was null! Created new.");
+				return new T();
+			}
+			Debug.Log($"Loaded data of type {typeof(T).Name}.");
+			return loadedData;
 		}
 	}
 }

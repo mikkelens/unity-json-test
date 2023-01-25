@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using Tools.Helpers;
 using UnityEngine;
 
@@ -10,7 +9,7 @@ namespace Gameplay
 	{
 		[SerializeField] private LayerMask targetMask;
 
-		public UpgradeStats stats;
+		public StrengthUpgrade stats;
 
 		private CircleCollider2D _circle;
 		private CircleCollider2D Circle => _circle ??= GetComponent<CircleCollider2D>();

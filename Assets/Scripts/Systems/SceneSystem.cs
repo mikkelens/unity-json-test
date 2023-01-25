@@ -31,7 +31,7 @@ namespace Systems
 					PlayerScript.Instance.ResetToPosition(LevelScript.Instance.spawnPosition);
 				}
 			}
-			SaveSystem.AutoSave();
+			SaveSystem.AutoSaveImmediately();
 		}
 	}
 }

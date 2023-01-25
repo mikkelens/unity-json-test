@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using Data;
 using Systems;
 using Tools.Helpers;
@@ -19,8 +18,12 @@ namespace Gameplay
 		[SerializeField] private float hitRadius = 1f;
 		[SerializeField] private float hitDistanceOffset = 2f;
 
-		public PlayerStats Stats { get; private set; } = new PlayerStats();
-		public List<UpgradeStats> Upgrades { get; private set; } = new List<UpgradeStats>();
+		// saved/loaded
+		[field: SerializeField] public AutoSavedUniqueType<Statistics> Scores { get; private set; }
+		[field: SerializeField] public AutoSavedUniqueType<Upgrades> Upgrades { get; private set; }
+
+		// runtime
+		[field: SerializeField] public PlayerStrengthValues StrengthValues { get; private set; } = new PlayerStrengthValues();
 
 		public Vector2 WalkInput { private get; set; }
 
@@ -28,14 +31,14 @@ namespace Gameplay
 
 		private void Start()
 		{
-			// Stats = SaveSystem.LoadPlayerStats();
-			Upgrades = SaveSystem.LoadPlayerUpgrades();
-			ReCalculateStats();
+			Scores.LoadFromFileType();
+			Upgrades.LoadFromFileType();
+			ReCalculateStrength();
 		}
 
 		private void FixedUpdate()
 		{
-			_velocity = Vector2.MoveTowards(_velocity, WalkInput * Stats.moveSpeed, moveAcceleration * Time.fixedDeltaTime);
+			_velocity = Vector2.MoveTowards(_velocity, WalkInput * StrengthValues.increaseddMoveSpeed, moveAcceleration * Time.fixedDeltaTime);
 			transform.Translate(_velocity.AsV3FromV2() * Time.fixedDeltaTime);
 		}
 
@@ -49,9 +52,12 @@ namespace Gameplay
 			EnemyScript enemy = FindEnemy();
 			if (enemy == null) return;
 
-			Debug.Log($"Dealt {Stats.damage.ToString()} damage to '{enemy.name}'.");
-			bool killedEnemy = enemy.Hit(Stats.damage);
-			if (killedEnemy) Stats.points++;
+			Debug.Log($"Dealt {StrengthValues.increasedDamage.ToString()} damage to '{enemy.name}'.");
+			bool killedEnemy = enemy.Hit(StrengthValues.increasedDamage);
+			if (killedEnemy)
+			{
+				Scores.MutValue.kills++;
+			}
 		}
 
 		private EnemyScript FindEnemy()
@@ -63,21 +69,21 @@ namespace Gameplay
 		}
 
 		private int _realDamage;
-		public void AddUpgrade(UpgradeStats stats)
+		public void AddUpgrade(StrengthUpgrade stats)
 		{
-			Upgrades.Add(stats);
-			ReCalculateStats();
+			Upgrades.MutValue.StrengthUpgrades.Add(stats);
+			ReCalculateStrength();
 		}
-		private void ReCalculateStats()
+		private void ReCalculateStrength()
 		{
-			PlayerStats stats = new PlayerStats { points = Stats.points, damage = startingDamage, moveSpeed = startingMoveSpeed };
-			foreach (UpgradeStats upgrade in Upgrades)
+			PlayerStrengthValues strengthValues = new PlayerStrengthValues { increasedDamage = startingDamage, increaseddMoveSpeed = startingMoveSpeed };
+			Debug.Log($"Upgrades.MutValue: {Upgrades.MutValue}");
+			foreach (StrengthUpgrade upgrade in Upgrades.MutValue.StrengthUpgrades)
 			{
-				stats.damage += upgrade.damageUpgrade;
-				stats.moveSpeed += upgrade.moveSpeedUpgrade;
+				strengthValues.increasedDamage += upgrade.damageUpgrade;
+				strengthValues.increaseddMoveSpeed += upgrade.moveSpeedUpgrade;
 			}
-			Stats = stats;
-			SaveSystem.AutoSave();
+			StrengthValues = strengthValues;
 		}
 
 		private void OnDrawGizmos()
